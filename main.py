@@ -1,4 +1,3 @@
-from configs import Config
 from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 import asyncio
@@ -22,20 +21,16 @@ User = Client(
 # Store search results and current index for each user
 user_search_results = {}
 
-@Bot.on_message(filters.private & filters.command("start"))
-async def start_handler(_, event: Message):
-    await event.reply_text(
-        "Welcome! Use the /search command to search for messages.",
-    )
-
-@Bot.on_message(filters.private & filters.command("search"))
+@Bot.on_message(filters.private)
 async def search_handler(_, event: Message):
-    query = event.text.split(" ", 1)[1] if len(event.text.split()) > 1 else None
-    if not query:
-        await event.reply_text("Please provide a search query after /search.")
+    # Only search if the message is not a command
+    if event.text.startswith("/"):
         return
-    
+
+    query = event.text
     results = []
+
+    # Search for messages in the channel matching the query
     async for message in User.search_messages(chat_id=Config.CHANNEL_ID, limit=50, query=query):
         if message.text:
             results.append({
@@ -46,6 +41,7 @@ async def search_handler(_, event: Message):
             })
     
     if results:
+        # Save the search results and set the current index to 0
         user_search_results[event.from_user.id] = {
             'results': results,
             'current_index': 0  # Starting at the first result
@@ -72,6 +68,7 @@ async def send_search_result(event: Message, result, index: int):
 
     result_text = f"**{result['text'].splitlines()[0]}**\nBy {result['user']} on {result['date']}\n\n*{result['text']}*"
     
+    # Reply with the result and buttons for navigation
     await event.reply_text(
         result_text,
         reply_markup=reply_markup,
