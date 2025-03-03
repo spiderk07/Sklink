@@ -74,6 +74,8 @@ async def inline_search(bot, message: Message):
 
     found_results = []
     try:
+        # Make sure the user client is started
+        await User.start()  # Start the User client before using it
         for channel in channels:
             async for msg in User.search_messages(chat_id=channel, query=query, limit=50):
                 name = msg.text or msg.caption
@@ -115,6 +117,8 @@ async def page_navigation(bot, update: CallbackQuery):
         channels = [Config.CHANNEL_ID]  # Can be a list of channel IDs
         found_results = []
 
+        # Make sure the user client is started
+        await User.start()  # Start the User client before using it
         for channel in channels:
             async for msg in User.search_messages(chat_id=channel, query=query, limit=50):
                 name = msg.text or msg.caption
