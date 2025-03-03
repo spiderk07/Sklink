@@ -54,7 +54,6 @@ Don't be sad ! Your all urls are in safe Hand.
 🔺Thank You <a href='https://t.me/LazyDeveloper'>LazyDeveloper</a>🔺 </b>
 """
 
-
     START_MSG = """
 <b>Hello Baby ! {}😅,
 
@@ -68,4 +67,3 @@ Don't be sad ! Your all urls are in safe Hand.</b>
 »» A small amount of ₹5 - ₹20 - ₹50 - ₹100 will be great help !
 🔺 Thank You 🔺 
 """
-
