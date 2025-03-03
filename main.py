@@ -3,6 +3,7 @@ from pyrogram import Client, filters, idle
 from pyrogram.errors import QueryIdInvalid
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 import asyncio
+from imdb import IMDb  # Import IMDbPY package
 
 # Bot Client for Inline Search
 Bot = Client(
@@ -20,6 +21,9 @@ User = Client(
     session_string=Config.USER_SESSION_STRING  # added session_string
 )
 
+# Initialize IMDbPY
+ia = IMDb()
+
 # Store search results and current index for each user
 user_search_results = {}
 
@@ -32,25 +36,52 @@ async def search_handler(_, event: Message):
     query = event.text
     results = []
 
-    # Search for messages in the channel matching the query
-    async for message in User.search_messages(chat_id=Config.CHANNEL_ID, limit=50, query=query):
-        if message.text:
-            results.append({
-                'text': message.text,
-                'user': message.from_user.first_name,
-                'date': message.date,
-                'message_id': message.message_id
-            })
+    if query.lower().startswith("imdb "):  # If the user sends a query starting with "imdb "
+        # Remove the "imdb " prefix
+        movie_name = query[5:]
+        
+        try:
+            # Search for movies in IMDb
+            search_results = ia.search_movie(movie_name)
+
+            if search_results:
+                # Get the first result
+                movie = search_results[0]
+                title = movie['title']
+                year = movie['year']
+
+                # Create an inline button for the movie title
+                button = InlineKeyboardButton(f"{title} ({year})", callback_data=f"imdb_search_{movie['movieID']}")
+
+                reply_markup = InlineKeyboardMarkup([[button]])
+
+                # Send the result (movie name and year) to the user
+                await event.reply_text(f"Found movie: **{title} ({year})**", reply_markup=reply_markup)
+            else:
+                await event.reply_text("No movie found with that name.")
+        except Exception as e:
+            await event.reply_text(f"Error occurred while fetching data from IMDb: {str(e)}")
     
-    if results:
-        # Save the search results and set the current index to 0
-        user_search_results[event.from_user.id] = {
-            'results': results,
-            'current_index': 0  # Starting at the first result
-        }
-        await send_search_result(event, results[0], 0)
     else:
-        await event.reply_text("No results found for your query.")
+        # Default search in the channel when the user sends a normal query
+        async for message in User.search_messages(chat_id=Config.CHANNEL_ID, limit=50, query=query):
+            if message.text:
+                results.append({
+                    'text': message.text,
+                    'user': message.from_user.first_name,
+                    'date': message.date,
+                    'message_id': message.message_id
+                })
+
+        if results:
+            # Save the search results and set the current index to 0
+            user_search_results[event.from_user.id] = {
+                'results': results,
+                'current_index': 0  # Starting at the first result
+            }
+            await send_search_result(event, results[0], 0)
+        else:
+            await event.reply_text("No results found for your query.")
 
 async def send_search_result(event: Message, result, index: int):
     """
@@ -103,6 +134,29 @@ async def callback_query_handler(_, cmd: CallbackQuery):
             search_data['current_index'] = new_index
             await send_search_result(cmd.message, results[new_index], new_index)
 
+    # If IMDb search button was clicked
+    elif data.startswith("imdb_search_"):
+        movie_id = data.split("_")[-1]
+
+        try:
+            # Get the movie details using the IMDb ID
+            movie = ia.get_movie(movie_id)
+            title = movie['title']
+            year = movie['year']
+            plot = movie.get('plot', ['No plot available'])[0]
+
+            # Send the detailed information of the movie
+            await cmd.message.edit(
+                text=f"**{title} ({year})**\n\n{plot}",
+                reply_markup=InlineKeyboardMarkup([
+                    [InlineKeyboardButton("Search in Channel", callback_data=f"search_in_channel_{title}")],
+                    [InlineKeyboardButton("Back", callback_data="gohome")]
+                ])
+            )
+        except Exception as e:
+            await cmd.answer("Error occurred while fetching movie details.")
+            print(f"Error fetching IMDb details: {e}")
+    
     # Acknowledge the callback
     await cmd.answer()
 
