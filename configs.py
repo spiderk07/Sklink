@@ -1,25 +1,69 @@
+# in & as LazyDeveloper
+# Please Don't Remove Credit
+
 import os
 
-class Config:
-    # Telegram API credentials
-    API_ID = int(os.environ.get("API_ID", "27967371"))
-    API_HASH = os.environ.get("API_HASH", "c8c22d9e427b8589236a6cd94a82a244")
 
-    # Bot token
-    BOT_TOKEN = os.environ.get("BOT_TOKEN", "6922466504:AAGKesha1FoDfa52BX32gYqE9V-TLKdpA_Y")
-    BOT_SESSION_NAME = os.environ.get("BOT_SESSION_NAME", "SkFilmBot")
+class Config(object):
+    API_ID = int(os.environ.get("API_ID", 12345))
+    API_HASH = os.environ.get("API_HASH", "")
+    BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
+    BOT_SESSION_NAME = os.environ.get("BOT_SESSION_NAME", "MdiskSearchBot")
+    USER_SESSION_STRING = os.environ.get("USER_SESSION_STRING", "")
+    CHANNEL_ID = int(os.environ.get("CHANNEL_ID", -100))
+    BOT_USERNAME = os.environ.get("BOT_USERNAME")
+    BOT_OWNER = int(os.environ.get("BOT_OWNER"))
+    DATABASE_URL = os.environ.get("DATABASE_URL")
+    UPDATES_CHANNEL = os.environ.get("UPDATES_CHANNEL", None)
+    ABOUT_BOT_TEXT = """<b> <a href='https://t.me/LazyUrlHunterrBOT'>Lazy Url Hunterr</a> is an open source project.
 
-    # User session string (for searching in channel)
-    USER_SESSION_STRING = os.environ.get("USER_SESSION_STRING", "BQGqv4sAxvmjqnc2CY4QqnaNZOt-T3F4DYrM0tyX5LnRaPFy64pJaqLekgLtf8bIglqnorz-fRxxMimtM6oZMuekL6fs_4yOhOyTos22QVlRdcGG-qeGbK0mR7YwuWl8EmOj-OBAiqjGv1eYiMpcIhu1vrTCJGb2b2JzYv7CSd43_jC2tTSPne3Qbo_HSSuShWIa287ckUFbtZi10jPmM2KR3YjIzhCWEs5LtSB8gYM_BBpDxaVIzirS4pbOvI0b1rk2H0tiCfI72g0VqM6xmTv3B8PUc_GeZU2zXXl-nT9LjTYlTeFKa_rozq_WoMB-QcmpXg1JUe016Lj8FwBKXZqxOG9LrwAAAAGp21jFAA")
+    Devs: 
+        <a href='https://t.me/mRiderDM'>❤️ LazyDeveloper ❤️</a>
+    
+    
+🤖 My Name: <a href='https://t.me/Official_Movies_Group'>Mdisk Search Robot</a>
 
-    # Channel ID where the bot searches for content
-    CHANNEL_ID = int(os.environ.get("CHANNEL_ID", "-1001234567890"))
+📝 Language: <a href='https://www.python.org'>Python V3</a>
 
-    # Start message
-    START_MSG = os.environ.get("START_MSG", "Hello {}, I'm a bot!")
+📚 Library: <a href='https://docs.pyrogram.org'>Pyrogram</a>
 
-    # About help text
-    ABOUT_HELP_TEXT = os.environ.get("ABOUT_HELP_TEXT", "Help text here")
+📡 Server: <a href='https://heroku.com'>Heroku</a>
 
-    # About bot text
-    ABOUT_BOT_TEXT = os.environ.get("ABOUT_BOT_TEXT", "About bot text here")
+📡 Server 2: <a href='https://heroku.com'>koyeb</a> <i>comming soon</i>
+
+👨‍💻 Developer Channel: <a href='https://t.me/LazyDeveloper'>LazyDeveloper</a></b>
+"""
+
+    ABOUT_HELP_TEXT = """<b>💋 Developer : <a href='https://t.me/LazyDeveloper'>LazyDeveloper</a>
+
+If You Want Your Own Bot Like This Then You Can Contact Our Developer.</b>
+"""
+
+    HOME_TEXT = """
+<b>Hello Baby ! {}😅,
+
+I'm the one and only fastest URL finder BOT. Add me to any Group and Give me Hunting rights !!
+
+I will be only yours if you will restrict adding me to other groups.
+Go to @BotFather to change settings.
+
+Don't be sad ! Your all urls are in safe Hand.
+
+»»» <b>Happy Hunting</b> «««
+
+🔺Thank You <a href='https://t.me/LazyDeveloper'>LazyDeveloper</a>🔺 </b>
+"""
+
+    START_MSG = """
+<b>Hello Baby ! {}😅,
+
+I'm the one and only fastest URL & post finder BOT. Add me to any Group and Give me Hunting rights !!
+
+Don't be sad ! Your all urls are in safe Hand.</b>
+
+   »»»» <b>Happy Hunting</b> ««««
+
+💸<b>Donate us to Keep service Alive.💸</b>
+»» A small amount of ₹5 - ₹20 - ₹50 - ₹100 will be great help !
+🔺 Thank You 🔺 
+"""
