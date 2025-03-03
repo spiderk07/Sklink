@@ -1,7 +1,6 @@
 from configs import Config
 from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
-from pyrogram.errors import QueryIdInvalid
 import asyncio
 import re
 
@@ -157,8 +156,6 @@ async def page_navigation(bot, update: CallbackQuery):
         await update.answer("An error occurred while navigating. Please try again later.", show_alert=True)
 
 # Start the bot clients
-Bot.start()
-User.start()
-# Loop the clients till they disconnect
-asyncio.get_event_loop().run_forever()
-
+if __name__ == "__main__":
+    Bot.run()
+    User.run()
