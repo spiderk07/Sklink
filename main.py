@@ -7,7 +7,7 @@ import asyncio
 
 # Bot Client for Inline Search
 Bot = Client(
-    session_name=Config.BOT_SESSION_NAME,
+    Config.BOT_SESSION_NAME, # Use positional argument for session_name
     api_id=Config.API_ID,
     api_hash=Config.API_HASH,
     bot_token=Config.BOT_TOKEN
@@ -15,7 +15,7 @@ Bot = Client(
 
 # User Client for Searching in Channel.
 User = Client(
-    session_name="user",  # Added a session name for the User client
+    "user",  # Added a session name for the User client, use positional argument
     api_id=Config.API_ID,  # added api_id
     api_hash=Config.API_HASH,  # added api_hash
     session_string=Config.USER_SESSION_STRING # added session_string
