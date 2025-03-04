@@ -6,7 +6,7 @@ import re
 
 # Bot Client for Inline Search
 Bot = Client(
-    Config.BOT_SESSION_NAME,  # Use positional argument for session_name
+    Config.BOT_SESSION_NAME,
     api_id=Config.API_ID,
     api_hash=Config.API_HASH,
     bot_token=Config.BOT_TOKEN
@@ -14,15 +14,18 @@ Bot = Client(
 
 # User Client for Searching in Channel
 User = Client(
-    "user",  # Added a session name for the User client
-    api_id=Config.API_ID,  # added api_id
-    api_hash=Config.API_HASH,  # added api_hash
-    session_string=Config.USER_SESSION_STRING  # added session_string
+    "user",
+    api_id=Config.API_ID,
+    api_hash=Config.API_HASH,
+    session_string=Config.USER_SESSION_STRING
 )
 
-RESULTS_PER_PAGE = 1  # Number of results per page
+# Start User client at the beginning
+async def start_user_client():
+    if not User.is_connected:
+        await User.start()
 
-# Function to replace Telegram links with your specific username
+# Function to replace Telegram links with a custom username
 def replace_telegram_links(text):
     return re.sub(r'https?://t\.me/[^\s]+', 'https://t.me/skfilmbox', text)
 
@@ -52,30 +55,19 @@ async def start_handler(_, event: Message):
         ])
     )
 
-# Handle the '/help' command
-@Bot.on_message(filters.private & filters.command("help"))
-async def help_handler(_, event: Message):
-    await event.reply_text(
-        Config.ABOUT_HELP_TEXT.format(event.from_user.mention),
-        reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton("Updates", url="https://t.me/LazyDeveloper"),
-             InlineKeyboardButton("Support Group", url="https://t.me/LazyPrincessSupport"),
-             InlineKeyboardButton("About", callback_data="About_msg")]
-        ])
-    )
-
 # Handle incoming messages and perform the inline search
 @Bot.on_message(filters.incoming)
 async def inline_search(bot, message: Message):
     if message.text == '/start':
         return
+    
+    await start_user_client()  # Ensure User client is started
+    
     query = message.text
-    channels = [Config.CHANNEL_ID]  # Can be a list of channel IDs
+    channels = [Config.CHANNEL_ID]
 
     found_results = []
     try:
-        # Make sure the user client is started
-        await User.start()  # Start the User client before using it
         for channel in channels:
             async for msg in User.search_messages(chat_id=channel, query=query, limit=50):
                 name = msg.text or msg.caption
@@ -85,8 +77,7 @@ async def inline_search(bot, message: Message):
         if found_results:
             total_results = len(found_results)
             results_text = f"🔍 **Total Results Found: {total_results}**\n\n"
-            start_idx = 0  # Start at the first result
-            page_result = found_results[start_idx]
+            page_result = found_results[0]
             results = f"🎬 **{page_result}**"
 
             # Pagination buttons
@@ -106,7 +97,7 @@ async def inline_search(bot, message: Message):
         print(f"Error occurred in search: {e}")
         await message.reply("An error occurred while processing your request. Please try again later.")
 
-# Handle pagination with callback queries (previous and next pages)
+# Handle pagination with callback queries
 @Bot.on_callback_query(filters.regex(r"^page"))
 async def page_navigation(bot, update: CallbackQuery):
     try:
@@ -114,11 +105,11 @@ async def page_navigation(bot, update: CallbackQuery):
         page_number = int(data[1])
         query = data[2]
 
-        channels = [Config.CHANNEL_ID]  # Can be a list of channel IDs
+        await start_user_client()  # Ensure User client is started
+
+        channels = [Config.CHANNEL_ID]
         found_results = []
 
-        # Make sure the user client is started
-        await User.start()  # Start the User client before using it
         for channel in channels:
             async for msg in User.search_messages(chat_id=channel, query=query, limit=50):
                 name = msg.text or msg.caption
@@ -126,7 +117,7 @@ async def page_navigation(bot, update: CallbackQuery):
                     found_results.append(replace_telegram_links(name))
 
         total_results = len(found_results)
-        start_idx = (page_number - 1) * RESULTS_PER_PAGE
+        start_idx = (page_number - 1) * 1  # 1 result per page
         if start_idx >= total_results:
             await update.answer("No more results available.", show_alert=True)
             return
@@ -138,7 +129,7 @@ async def page_navigation(bot, update: CallbackQuery):
         buttons = []
         if page_number > 1:
             buttons.append(InlineKeyboardButton("⏪ Previous", callback_data=f"page_{page_number - 1}_{query}"))
-        if start_idx + RESULTS_PER_PAGE < total_results:
+        if start_idx + 1 < total_results:
             buttons.append(InlineKeyboardButton("Next ⏭", callback_data=f"page_{page_number + 1}_{query}"))
 
         # Delete the current message
@@ -159,7 +150,6 @@ async def page_navigation(bot, update: CallbackQuery):
         print(f"Error occurred in page navigation: {e}")
         await update.answer("An error occurred while navigating. Please try again later.", show_alert=True)
 
-# Start the bot clients
+# Start the bot client (User client is started asynchronously)
 if __name__ == "__main__":
-    Bot.run()
-    User.run()
+    Bot.run()  # No need to run `User.run()`, it's managed asynchronously
