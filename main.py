@@ -40,7 +40,7 @@ async def search_imdb(query):
             title = movie["title"]
             try: year = f" - {movie['year']}"
             except: year = ""
-            list.append({"title":title, "year":year, "id":movie.movieID})
+            list.append({"title": title, "year": year, "id": movie.movieID})
         return list
 
 # Start User client at the beginning
@@ -135,10 +135,103 @@ async def inline_search(bot, message: Message):
                 )
                 await save_dlt_message(bot, msg, 300)  # Delete after 5 minutes
             else:
-                await message.reply_text("No results found for your query and no suggestions available.")
+                buttons = [[InlineKeyboardButton("📩 Request Admin", url="https://t.me/skAdminrobot")]]
+                await message.reply_text(
+                    "No results found for your query and no suggestions available.",
+                    reply_markup=InlineKeyboardMarkup(buttons)
+                )
     except Exception as e:
         logger.error(f"Error occurred in search: {e}")
         await message.reply("An error occurred while processing your request. Please try again later.")
+
+# Handle pagination for search results
+@Bot.on_callback_query(filters.regex(r"^page_(\d+)_(.+)"))
+async def paginate_results(bot, query: CallbackQuery):
+    page_number = int(query.matches[0].group(1))
+    search_query = query.matches[0].group(2)
+    channels = Config.CHANNEL_IDS  # List of multiple channel IDs
+
+    await start_user_client()  # Ensure User client is started
+
+    found_results = []
+    try:
+        for channel in channels:
+            async for msg in User.search_messages(chat_id=channel, query=search_query, limit=50):
+                name = msg.text or msg.caption
+                if name:
+                    found_results.append(replace_telegram_links(name))
+
+        total_results = len(found_results)
+        start_index = (page_number - 1) * 1
+        end_index = start_index + 1
+
+        if start_index < total_results:
+            page_result = found_results[start_index:end_index]
+            results_text = f"🔍 **Total Results Found: {total_results}**\n\n"
+            results = f"🎬 **{page_result[0]}**"
+
+            # Pagination buttons
+            buttons = []
+            if end_index < total_results:
+                buttons.append(InlineKeyboardButton("Next ⏭", callback_data=f"page_{page_number + 1}_{search_query}"))
+            if page_number > 1:
+                buttons.append(InlineKeyboardButton("⏮ Previous", callback_data=f"page_{page_number - 1}_{search_query}"))
+            reply_markup = InlineKeyboardMarkup([buttons]) if buttons else None
+
+            await query.message.edit_text(
+                text=results_text + results,
+                reply_markup=reply_markup
+            )
+        else:
+            await query.answer("No more results available.")
+    except Exception as e:
+        logger.error(f"Error occurred in pagination: {e}")
+        await query.message.reply("An error occurred while processing your request. Please try again later.")
+
+# Handle movie recheck from IMDb suggestions
+@Bot.on_callback_query(filters.regex(r"^recheck_(\d+)"))
+async def recheck_movie(bot, query: CallbackQuery):
+    movie_id = query.matches[0].group(1)
+    movie = ia.get_movie(movie_id)
+    title = movie["title"]
+    
+    # Perform the search again with the movie title
+    await start_user_client()  # Ensure User client is started
+    channels = Config.CHANNEL_IDS  # List of multiple channel IDs
+
+    found_results = []
+    try:
+        for channel in channels:
+            async for msg in User.search_messages(chat_id=channel, query=title, limit=50):
+                name = msg.text or msg.caption
+                if name:
+                    found_results.append(replace_telegram_links(name))
+
+        if found_results:
+            total_results = len(found_results)
+            results_text = f"🔍 **Total Results Found: {total_results}**\n\n"
+            page_result = found_results[0]
+            results = f"🎬 **{page_result}**"
+
+            # Pagination buttons
+            buttons = []
+            if total_results > 1:
+                buttons.append(InlineKeyboardButton("Next ⏭", callback_data=f"page_2_{title}"))
+            reply_markup = InlineKeyboardMarkup([buttons]) if buttons else None
+
+            await query.message.edit_text(
+                text=results_text + results,
+                reply_markup=reply_markup
+            )
+        else:
+            buttons = [[InlineKeyboardButton("📩 Request Admin", url="https://t.me/skAdminrobot")]]
+            await query.message.edit_text(
+                "No results found for your query.",
+                reply_markup=InlineKeyboardMarkup(buttons)
+            )
+    except Exception as e:
+        logger.error(f"Error occurred in recheck: {e}")
+        await query.message.reply("An error occurred while processing your request. Please try again later.")
 
 # Start the bot client
 if __name__ == "__main__":
