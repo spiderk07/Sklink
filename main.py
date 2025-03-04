@@ -29,22 +29,28 @@ User = Client(
 ia = Cinemagoer()
 
 async def search_imdb(query):
-    try:
-        int(query)
-        movie = ia.get_movie(query)
-        return movie["title"]
-    except Exception as e:
-        logger.error(f"Error searching IMDb: {e}")
-        movies = ia.search_movie(query, results=10)
-        list = []
-        for movie in movies:
-            title = movie["title"]
-            try:
-                year = f" - {movie['year']}"
-            except:
-                year = ""
-            list.append({"title": title, "year": year, "id": movie.movieID})
-        return list
+    if query.isdigit():
+        try:
+            movie = ia.get_movie(query)
+            return movie["title"]
+        except Exception as e:
+            logger.error(f"Error searching IMDb by ID: {e}")
+            return []
+    else:
+        try:
+            movies = ia.search_movie(query, results=10)
+            list = []
+            for movie in movies:
+                title = movie["title"]
+                try:
+                    year = f" - {movie['year']}"
+                except:
+                    year = ""
+                list.append({"title": title, "year": year, "id": movie.movieID})
+            return list
+        except Exception as e:
+            logger.error(f"Error searching IMDb by title: {e}")
+            return []
 
 # Start User client at the beginning
 async def start_user_client():
