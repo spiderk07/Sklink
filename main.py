@@ -181,14 +181,14 @@ async def paginate_results(bot, query: CallbackQuery):
             reply_markup = InlineKeyboardMarkup([buttons]) if buttons else None
 
             await query.message.edit_text(
-                text=results_text + results,
+                text=results_text + results + f"\n\n{query.from_user.mention}",
                 reply_markup=reply_markup
             )
         else:
             await query.answer("No more results available.")
     except Exception as e:
         logger.error(f"Error occurred in pagination: {e}")
-        await query.message.reply("An error occurred while processing your request. Please try again later.")
+        await query.message.reply(f"An error occurred while processing your request. Please try again later. {query.from_user.mention}")
 
 # Handle movie recheck from IMDb suggestions
 @Bot.on_callback_query(filters.regex(r"^recheck_(\d+)"))
@@ -222,18 +222,18 @@ async def recheck_movie(bot, query: CallbackQuery):
             reply_markup = InlineKeyboardMarkup([buttons]) if buttons else None
 
             await query.message.edit_text(
-                text=results_text + results,
+                text=results_text + results + f"\n\n{query.from_user.mention}",
                 reply_markup=reply_markup
             )
         else:
             buttons = [[InlineKeyboardButton("📩 Request Admin", url="https://t.me/skAdminrobot")]]
             await query.message.edit_text(
-                "No results found for your query.",
+                f"No results found for your query.\n\n{query.from_user.mention}",
                 reply_markup=InlineKeyboardMarkup(buttons)
             )
     except Exception as e:
         logger.error(f"Error occurred in recheck: {e}")
-        await query.message.reply("An error occurred while processing your request. Please try again later.")
+        await query.message.reply(f"An error occurred while processing your request. Please try again later. {query.from_user.mention}")
 
 # Start the bot client
 if __name__ == "__main__":
