@@ -51,13 +51,10 @@ async def delete_schedule(bot, message, delay: int):
 async def save_dlt_message(bot, message, delete_after_seconds: int):
     await delete_schedule(bot, message, delete_after_seconds)
 
-# Function to get IMDB movie suggestions
-def get_imdb_suggestions(query):
-    url = f"https://www.omdbapi.com/?s={query}&apikey={Config.IMDB_API_KEY}"
-    response = requests.get(url).json()
-    if response.get("Response") == "True":
-        return [(movie["Title"], movie["imdbID"]) for movie in response.get("Search", [])]
-    return []
+# Function to get movie suggestions (dummy implementation)
+def get_movie_suggestions(query):
+    # Replace this function with the actual logic to get movie suggestions
+    return [{"title": "Dummy Movie 1", "id": "1"}, {"title": "Dummy Movie 2", "id": "2"}]
 
 # Handle '/start' command
 @Bot.on_message(filters.private & filters.command("start"))
@@ -113,18 +110,20 @@ async def inline_search(bot, message: Message):
             )
             await save_dlt_message(bot, msg, 300)  # Delete after 5 minutes
         else:
-            imdb_suggestions = get_imdb_suggestions(query)
-            buttons = []
-            if imdb_suggestions:
-                buttons.extend([
-                    [InlineKeyboardButton(f"🎬 {title}", callback_data=f"imdb_{imdb_id}")]
-                    for title, imdb_id in imdb_suggestions[:5]
-                ])
-            buttons.append([InlineKeyboardButton("📩 Request Admin", url="https://t.me/AdminContact")])
-            await message.reply_text(
-                "No exact results found. You can try these suggestions or request from admin:",
-                reply_markup=InlineKeyboardMarkup(buttons)
-            )
+            movie_suggestions = get_movie_suggestions(query)
+            if movie_suggestions:
+                # Fallback if no results found
+                buttons = [[InlineKeyboardButton(movie["title"], callback_data=f"recheck_{movie['id']}")] for movie in movie_suggestions]
+                buttons.append([InlineKeyboardButton("📩 Request Admin", url="https://t.me/AdminContact")])
+                
+                msg = await message.reply_photo(
+                    photo="https://graph.org/file/1ee45a6e2d4d6a9262a12.jpg",
+                    caption="<b><i>Sorry, no results found for your query 😕.\nDid you mean any of these?</i></b>", 
+                    reply_markup=InlineKeyboardMarkup(buttons)
+                )
+                await save_dlt_message(bot, msg, 300)  # Delete after 5 minutes
+            else:
+                await message.reply_text("No results found for your query and no suggestions available.")
     except Exception as e:
         logger.error(f"Error occurred in search: {e}")
         await message.reply("An error occurred while processing your request. Please try again later.")
