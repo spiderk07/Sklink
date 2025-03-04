@@ -21,3 +21,4 @@ Werkzeug==2.2.2
 pyspellchecker
 IMDbPY
 requests
+Cinemagoer
