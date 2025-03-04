@@ -97,7 +97,7 @@ async def inline_search(bot, message: Message):
     channels = Config.CHANNEL_IDS  # List of multiple channel IDs
     
     mention = message.from_user.mention
-    searching_msg = await message.reply_text(f"🔍 Searching for results, please wait... {mention}")
+    searching_msg = await message.reply_text(f"🔍 Searching for {query}... {mention}")
     
     found_results = []
     try:
@@ -148,7 +148,7 @@ async def inline_search(bot, message: Message):
     except Exception as e:
         logger.error(f"Error occurred in search: {e}")
         await searching_msg.delete()
-        await message.reply(f"An error occurred while processing your request. Please try again later. {mention}")
+        await message.reply(f"Please Follow WhatsApp Channel https://whatsapp.com/channel/0029Va69Ts2C6ZvmEWsHNo3c. {mention}")
 
 # Handle pagination for search results
 @Bot.on_callback_query(filters.regex(r"^page_(\d+)_(.+)"))
@@ -192,7 +192,7 @@ async def paginate_results(bot, query: CallbackQuery):
             await query.answer("No more results available.")
     except Exception as e:
         logger.error(f"Error occurred in pagination: {e}")
-        await query.message.reply(f"An error occurred while processing your request. Please try again later. {query.from_user.mention}")
+        await query.message.reply(f"Please Follow WhatsApp Channel https://whatsapp.com/channel/0029Va69Ts2C6ZvmEWsHNo3c. {query.from_user.mention}")
 
 # Handle movie recheck from IMDb suggestions
 @Bot.on_callback_query(filters.regex(r"^recheck_(\d+)"))
@@ -237,7 +237,7 @@ async def recheck_movie(bot, query: CallbackQuery):
             )
     except Exception as e:
         logger.error(f"Error occurred in recheck: {e}")
-        await query.message.reply(f"An error occurred while processing your request. Please try again later. {query.from_user.mention}")
+        await query.message.reply(f"Please Follow WhatsApp Channel https://whatsapp.com/channel/0029Va69Ts2C6ZvmEWsHNo3c. {query.from_user.mention}")
 
 # Start the bot client
 if __name__ == "__main__":
