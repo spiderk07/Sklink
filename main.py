@@ -76,7 +76,7 @@ async def save_dlt_message(bot, message, delete_after_seconds: int):
 async def start_handler(_, message: Message):
     mention = message.from_user.mention
     await message.reply_photo(
-        "https://envs.sh/PAJ.jpg",
+        "https://graph.org/file/9e75acb615bf3b613a811-b06ba8cdabe4216f6a.jpg",
         caption=Config.START_MSG.format(mention),
         reply_markup=InlineKeyboardMarkup([
             [InlineKeyboardButton("🔰 Donate us 🔰", url="https://razorpay.me/@skfilmbox")],
@@ -134,7 +134,7 @@ async def inline_search(bot, message: Message):
                 buttons.append([InlineKeyboardButton("📩 Request Admin", url="https://t.me/skAdminrobot")])
                 
                 msg = await message.reply_photo(
-                    photo="https://graph.org/file/1ee45a6e2d4d6a9262a12.jpg",
+                    photo="https://graph.org/file/9e75acb615bf3b613a811-b06ba8cdabe4216f6a.jpg",
                     caption=f"<b><i>Sorry, no results found for your query 😕.\nDid you mean any of these?</i></b>\n\n{mention}", 
                     reply_markup=InlineKeyboardMarkup(buttons)
                 )
