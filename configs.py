@@ -1,8 +1,4 @@
-# in & as LazyDeveloper
-# Please Don't Remove Credit
-
 import os
-
 
 class Config(object):
     API_ID = int(os.environ.get("API_ID", 12345))
@@ -11,8 +7,8 @@ class Config(object):
     BOT_SESSION_NAME = os.environ.get("BOT_SESSION_NAME", "MdiskSearchBot")
     USER_SESSION_STRING = os.environ.get("USER_SESSION_STRING", "")
     
-    # Update CHANNEL_IDS to be a list of integers
-    CHANNEL_IDS = list(map(int, os.environ.get("CHANNEL_IDS", "").split()))
+    # Update CHANNEL_IDS to include the specified channel IDs
+    CHANNEL_IDS = [-1001891090100, -1001837515288, -1002024811395]
     
     BOT_USERNAME = os.environ.get("BOT_USERNAME")
     BOT_OWNER = int(os.environ.get("BOT_OWNER"))
