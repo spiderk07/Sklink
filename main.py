@@ -70,10 +70,11 @@ async def save_dlt_message(bot, message, delete_after_seconds: int):
 
 # Handle '/start' command
 @Bot.on_message(filters.private & filters.command("start"))
-async def start_handler(_, event: Message):
-    await event.reply_photo(
+async def start_handler(_, message: Message):
+    mention = message.from_user.mention
+    await message.reply_photo(
         "https://telegram.me/share/url?url=https://envs.sh/PAJ.jpg",
-        caption=Config.START_MSG.format(event.from_user.mention),
+        caption=Config.START_MSG.format(mention),
         reply_markup=InlineKeyboardMarkup([
             [InlineKeyboardButton("🔰 Donate us 🔰", url="https://razorpay.me/@skfilmbox")],
             [InlineKeyboardButton("⚡️ Skfilmbox ⚡️", url="https://t.me/skfilmbox")],
@@ -92,7 +93,8 @@ async def inline_search(bot, message: Message):
     query = message.text.strip()
     channels = Config.CHANNEL_IDS  # List of multiple channel IDs
     
-    searching_msg = await message.reply_text("🔍 Searching for results, please wait...")
+    mention = message.from_user.mention
+    searching_msg = await message.reply_text(f"🔍 Searching for results, please wait... {mention}")
     
     found_results = []
     try:
@@ -117,7 +119,7 @@ async def inline_search(bot, message: Message):
             reply_markup = InlineKeyboardMarkup([buttons]) if buttons else None
 
             msg = await message.reply_text(
-                text=results_text + results,
+                text=results_text + results + f"\n\n{mention}",
                 reply_markup=reply_markup
             )
             await save_dlt_message(bot, msg, 300)  # Delete after 5 minutes
@@ -130,19 +132,19 @@ async def inline_search(bot, message: Message):
                 
                 msg = await message.reply_photo(
                     photo="https://graph.org/file/1ee45a6e2d4d6a9262a12.jpg",
-                    caption="<b><i>Sorry, no results found for your query 😕.\nDid you mean any of these?</i></b>", 
+                    caption=f"<b><i>Sorry, no results found for your query 😕.\nDid you mean any of these?</i></b>\n\n{mention}", 
                     reply_markup=InlineKeyboardMarkup(buttons)
                 )
                 await save_dlt_message(bot, msg, 300)  # Delete after 5 minutes
             else:
                 buttons = [[InlineKeyboardButton("📩 Request Admin", url="https://t.me/skAdminrobot")]]
                 await message.reply_text(
-                    "No results found for your query and no suggestions available.",
+                    f"No results found for your query and no suggestions available.\n\n{mention}",
                     reply_markup=InlineKeyboardMarkup(buttons)
                 )
     except Exception as e:
         logger.error(f"Error occurred in search: {e}")
-        await message.reply("An error occurred while processing your request. Please try again later.")
+        await message.reply(f"An error occurred while processing your request. Please try again later. {mention}")
 
 # Handle pagination for search results
 @Bot.on_callback_query(filters.regex(r"^page_(\d+)_(.+)"))
