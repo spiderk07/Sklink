@@ -111,7 +111,7 @@ async def inline_search(bot, message: Message):
         
         if found_results:
             total_results = len(found_results)
-            results_text = f"★ **Pᴏᴡᴇʀᴇᴅ ʙʏ : @SkFilmBox \n🔎 Total Results:: {total_results}**\n\n"
+            results_text = f"★ **Pᴏᴡᴇʀᴇᴅ ʙʏ : @SkFilmBox \n\n🔎 Total Results:: {total_results}**\n\n"
             page_result = found_results[0]
             results = f"🎬 **{page_result}**"
 
@@ -162,8 +162,10 @@ async def paginate_results(bot, query: CallbackQuery):
     found_results = []
     try:
         # Show a sticker before displaying the next results
-        await query.message.reply_sticker(sticker="CAACAgIAAxkBAAKf1GfHKZMWJQGWXtjitWHKu_MSEEjbAAI8TAACBcnQS1AJylV4pVHqNgQ")
-
+        sticker_message = await query.message.reply_sticker(sticker="CAACAgIAAxkBAAKf0WfHKVH5auqyUzh649nVPJVm29IGAAJxCAAChJRBSW9oCRqmu85zNgQ")
+        await asyncio.sleep(2)
+        await sticker_message.delete()
+        
         for channel in channels:
             async for msg in User.search_messages(chat_id=channel, query=search_query, limit=50):
                 name = msg.text or msg.caption
@@ -176,7 +178,7 @@ async def paginate_results(bot, query: CallbackQuery):
 
         if start_index < total_results:
             page_result = found_results[start_index:end_index]
-            results_text = f"★ **Pᴏᴡᴇʀᴇᴅ ʙʏ : @SkFilmBox \n🔎 Total Results: {total_results}**\n\n"
+            results_text = f"★ **Pᴏᴡᴇʀᴇᴅ ʙʏ : @SkFilmBox \n\n🔎 Total Results: {total_results}**\n\n"
             results = f"🎬 **{page_result[0]}**"
 
             # Pagination buttons
@@ -205,7 +207,9 @@ async def recheck_movie(bot, query: CallbackQuery):
     title = movie["title"]
 
     # Show a sticker before displaying the results
-    await query.message.reply_sticker(sticker="CAADAgADQAADyIsGAAE7MpzFPFQXGQI")
+    sticker_message = await query.message.reply_sticker(sticker="CAACAgIAAxkBAAKf1GfHKZMWJQGWXtjitWHKu_MSEEjbAAI8TAACBcnQS1AJylV4pVHqNgQ")
+    await asyncio.sleep(2)
+    await sticker_message.delete()
 
     # Perform the search again with the movie title
     await start_user_client()  # Ensure User client is started
