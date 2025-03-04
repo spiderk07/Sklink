@@ -10,7 +10,7 @@ class Config(object):
     BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
     BOT_SESSION_NAME = os.environ.get("BOT_SESSION_NAME", "MdiskSearchBot")
     USER_SESSION_STRING = os.environ.get("USER_SESSION_STRING", "")
-    CHANNEL_ID = int(os.environ.get("CHANNEL_ID", -100))
+    CHANNEL_IDS = int(os.environ.get("CHANNEL_IDS", -100))
     BOT_USERNAME = os.environ.get("BOT_USERNAME")
     BOT_OWNER = int(os.environ.get("BOT_OWNER"))
     DATABASE_URL = os.environ.get("DATABASE_URL")
