@@ -4,7 +4,7 @@ from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, 
 import asyncio
 import re
 import logging
-import requests
+from imdb import Cinemagoer
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -25,6 +25,23 @@ User = Client(
     api_hash=Config.API_HASH,
     session_string=Config.USER_SESSION_STRING
 )
+
+ia = Cinemagoer()
+
+async def search_imdb(query):
+    try:
+        int(query)
+        movie = ia.get_movie(query)
+        return movie["title"]
+    except:
+        movies = ia.search_movie(query, results=10)
+        list = []
+        for movie in movies:
+            title = movie["title"]
+            try: year = f" - {movie['year']}"
+            except: year = ""
+            list.append({"title":title, "year":year, "id":movie.movieID})
+        return list
 
 # Start User client at the beginning
 async def start_user_client():
@@ -51,20 +68,15 @@ async def delete_schedule(bot, message, delay: int):
 async def save_dlt_message(bot, message, delete_after_seconds: int):
     await delete_schedule(bot, message, delete_after_seconds)
 
-# Function to get movie suggestions (dummy implementation)
-def get_movie_suggestions(query):
-    # Replace this function with the actual logic to get movie suggestions
-    return [{"title": "Dummy Movie 1", "id": "1"}, {"title": "Dummy Movie 2", "id": "2"}]
-
 # Handle '/start' command
 @Bot.on_message(filters.private & filters.command("start"))
 async def start_handler(_, event: Message):
     await event.reply_photo(
-        "https://telegra.ph/file/2b160d9765fe080c704d2.png",
+        "https://telegram.me/share/url?url=https://envs.sh/PAJ.jpg",
         caption=Config.START_MSG.format(event.from_user.mention),
         reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton("🔰 Donate us 🔰", url="https://p.paytm.me/xCTH/vo37hii9")],
-            [InlineKeyboardButton("⚡️ LazyDeveloper ⚡️", url="https://t.me/LazyDeveloper")],
+            [InlineKeyboardButton("🔰 Donate us 🔰", url="https://razorpay.me/@skfilmbox")],
+            [InlineKeyboardButton("⚡️ Skfilmbox ⚡️", url="https://t.me/skfilmbox")],
             [InlineKeyboardButton("🤖 Help", callback_data="Help_msg"),
              InlineKeyboardButton("🧑‍💻 About", callback_data="About_msg")]
         ])
@@ -110,11 +122,11 @@ async def inline_search(bot, message: Message):
             )
             await save_dlt_message(bot, msg, 300)  # Delete after 5 minutes
         else:
-            movie_suggestions = get_movie_suggestions(query)
+            movie_suggestions = await search_imdb(query)
             if movie_suggestions:
                 # Fallback if no results found
                 buttons = [[InlineKeyboardButton(movie["title"], callback_data=f"recheck_{movie['id']}")] for movie in movie_suggestions]
-                buttons.append([InlineKeyboardButton("📩 Request Admin", url="https://t.me/AdminContact")])
+                buttons.append([InlineKeyboardButton("📩 Request Admin", url="https://t.me/skAdminrobot")])
                 
                 msg = await message.reply_photo(
                     photo="https://graph.org/file/1ee45a6e2d4d6a9262a12.jpg",
