@@ -33,13 +33,16 @@ async def search_imdb(query):
         int(query)
         movie = ia.get_movie(query)
         return movie["title"]
-    except:
+    except Exception as e:
+        logger.error(f"Error searching IMDb: {e}")
         movies = ia.search_movie(query, results=10)
         list = []
         for movie in movies:
             title = movie["title"]
-            try: year = f" - {movie['year']}"
-            except: year = ""
+            try:
+                year = f" - {movie['year']}"
+            except:
+                year = ""
             list.append({"title": title, "year": year, "id": movie.movieID})
         return list
 
@@ -144,6 +147,7 @@ async def inline_search(bot, message: Message):
                 )
     except Exception as e:
         logger.error(f"Error occurred in search: {e}")
+        await searching_msg.delete()
         await message.reply(f"An error occurred while processing your request. Please try again later. {mention}")
 
 # Handle pagination for search results
